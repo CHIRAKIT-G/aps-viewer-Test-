@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>APS Viewer – ACC style</title>
+
+    <!-- CSS + JS ของ Viewer -->
+    <link rel="stylesheet"
+          href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css" />
+    <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
+
+    <style>
+      html, body {
+        margin: 0; padding: 0;
+        width: 100%; height: 100%;
+        overflow: hidden;
+      }
+      #viewer {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="viewer"></div>
+
+    <script>
+      var urn = "dXJuOmFkc2sud2lwcHJvZDpmcy5maWxlOnZmLk9ZbHM4RW9JUTRHNnZUcHdxbElTMXc_dmVyc2lvbj00";
+
+      function getAccessToken(onTokenReady) {
+        var token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IlZiakZvUzhQU3lYODQyMV95dndvRUdRdFJEa19SUzI1NiIsInBpLmF0bSI6ImFzc2MifQ.eyJzY29wZSI6WyJkYXRhOnJlYWQiXSwiY2xpZW50X2lkIjoiNUNRSUhtWXZYY0tQYlZQcGtFOGJLM21MeUpIejZndXhENHJqSUc4Q3h1bWdIekdtIiwiaXNzIjoiaHR0cHM6Ly9kZXZlbG9wZXIuYXBpLmF1dG9kZXNrLmNvbSIsImF1ZCI6Imh0dHBzOi8vYXV0b2Rlc2suY29tIiwianRpIjoiZTRSNjFTakVCa2pPTmlHMTF2UlE0VG5rTWJwTnlRN1JmVWpCZW5UblY1elJqaDg5azVLQXMwTzA0MmZPZk9sQSIsImV4cCI6MTc2MzQ1MDYzNX0.QWvVfrFw-m1HaBYdtckrtC0PJnvkbb3Z6A8eIFip1YiDHmecGwetpLeOLZIMPnCn7NNYG7fFdoqqEXCZVvb6qnqmCMhR4wLTNL0r-euosaBvMq3oRdjuiIFWqr5NK2rsqz-1m04q3UuFpaqpn2ztJt-bg0RVkB9j4AcDXUWeNM3qaUlFCNRq-Sjur1m7ihxXcSzSXQ1vaH7nMcjqPxBv33smZV0QoinBA0OjV9zVKF6dFOoDbYroigatSS8AUxSY23XjRNX1CXCxs6OwyQTvwfF7QYD1CnSj-Hkh7ciyHxCzUnjvUK3WfQOGxBQUtiAvyASzw0iW3TZUn8jsl1f1OA";  // ใส่ access_token จาก Postman
+        var expiresIn = 3500;
+        onTokenReady(token, expiresIn);
+      }
+
+      var options = {
+        env: "AutodeskProduction",
+        getAccessToken: getAccessToken
+      };
+
+      Autodesk.Viewing.Initializer(options, function () {
+
+        // เปิด extension ที่ใกล้เคียง ACC
+        var config3d = {
+          extensions: [
+            "Autodesk.ViewCubeUi",
+            "Autodesk.DocumentBrowser",
+            "Autodesk.Section",
+            "Autodesk.Measure",
+            "Autodesk.Explode",
+            "Autodesk.BimWalk"
+          ]
+        };
+
+        var viewerDiv = document.getElementById("viewer");
+        var viewer = new Autodesk.Viewing.GuiViewer3D(viewerDiv, config3d);
+        viewer.start();
+        viewer.setTheme("light-theme");
+
+        // บังคับให้โหมดนำทางเป็นการหมุน (orbit) แบบ 3D
+        viewer.setActiveNavigationTool("orbit");
+
+        var documentId = "urn:" + urn;
+        Autodesk.Viewing.Document.load(
+          documentId,
+          function (doc) {
+            var defaultModel = doc.getRoot().getDefaultGeometry();
+            viewer.loadDocumentNode(doc, defaultModel);
+          },
+          function (err) {
+            console.error(err);
+          }
+        );
+      });
+    </script>
+  </body>
+</html>
